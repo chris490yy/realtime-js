@@ -9,17 +9,34 @@ let server = http.createServer(app);
 
 let io = socketio(server);
 
-var color = ['yellow','blue','pink','red','black','brown','orange'];
+var colorLib = ['yellow','blue','pink','red','black','brown','orange'];
+
+var circleHistory = [];
+
+var numOfClientsConnected = 0;
 
 io.on('connection', (sock) => {
-    console.log('client connected');
+    numOfClientsConnected++;
+    console.log('one client connected,totla clients is '+numOfClientsConnected);
+    circleHistory.forEach(function(his) {
+        io.emit('circle',his.coord,his.color);
+    });
+
     sock.on('chat',(msg) => {
         io.emit('chat',msg);
     });
     sock.on('circle',(coord) => {
         var colorId = Math.ceil(Math.random()*7);
-        io.emit('circle',coord,color[colorId]);
+        var color = colorLib[colorId];
+        circleHistory.push({coord:coord,color:color});
+        io.emit('circle',coord,color);
     });
+});
+
+io.on('disconnection',(sock) => {
+    numOfClientsConnected--;
+    console.log('one client disconnected,totla clients is '+numOfClientsConnected);
+
 });
 
 
