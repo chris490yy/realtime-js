@@ -1,25 +1,54 @@
 <html>
 	<head>
 		<title>My Chat</title>
-	<head>
+		<style>
+		div.pos_abs{
+			position:absolute;
+			left:700px;
+		}
+		li.sys_msg{
+			font-style:italic;
+			font-family: sans-serif;
+			font-size: 14px;
+		}
+		li.client_msg{
+			font-style: normal;
+			font-family: Times,georgia;
+			font-size: 30px;
+		}
+		</style>
+	</head>
 	<body>
+		<!--<canvas width="300px" height="300px"></canvas>-->
+		<div id="logIn" class="pos_abs" style="top:300px;">
+			<form>
+				<h1>enter the user name</h1>
+				<input id="userInputName" placeholder="enter the username"/>
+				<input type="button" value="submit" onclick="userSubmitName()" />
+				<p id="invalidUsername"></p>
+			</form>
+		</div>
 
-		<canvas width="300px" height="300px"></canvas>
+		<div id="chatRoom" style="display: none;">
+			<h1>My realtime chat!</h>
+			<h3 id="showClientNumber"></h3>
+			<h3 id="showClientName"></h3>
+			<ul id="chat">
+				
+			</ul>
+			
+			<form id="form">
+        		<input id="input"/>
+        		<button id="button">add!</button>
+    		</form>	
+		</div>
+
+
+
 		
 
-		<h1>My realtime chat!</h>
-
-		<ul id="chat">
-			<li>hello there</li>
-		</ul>
-
-		<form id="form">
-        <input id="input"/>
-        <button id="button">add!</button>
-    	</form>
-
     	<script src="/socket.io/socket.io.js"></script>
-		<script src="src/main.js"></script>
-		<script src="src/randomCircle.js"></script>
+		<script src="src/chatRoom.js"></script>
+
 	</body>
 </html>

@@ -6,46 +6,60 @@ let socketio = require('socket.io');
 
 let app = express();
 let server = http.createServer(app);
-
 let io = socketio(server);
 
-var colorLib = ['yellow','blue','pink','red','black','brown','orange'];
-
-var circleHistory = [];
-
 var numOfClientsConnected = 0;
+var clients = [];
 
 io.on('connection', (sock) => {
-    numOfClientsConnected++;
-    console.log('one client connected,totla clients is '+numOfClientsConnected);
-    circleHistory.forEach(function(his) {
-        io.emit('circle',his.coord,his.color);
+   
+    sock.on('login',(user) => {
+        console.log('user login');
+    	if(clients.indexOf(user)>-1){
+            console.log('dup');
+    		io.emit('dupUsername');
+        }
+    	else{  
+            sock.name = user;
+            numOfClientsConnected++;
+            console.log('one client connected,total clients is '+numOfClientsConnected);
+            console.log('push'); 		
+    		clients.push(user);
+    		var SysMsg = {num:numOfClientsConnected,nameList:clients,name:user};
+    		io.emit('login',SysMsg);
+    	}       
     });
 
     sock.on('chat',(msg) => {
-        io.emit('chat',msg);
+        var userWithMsg = {name:sock.name,msg:msg};
+        console.log(userWithMsg);
+        io.emit('chat',userWithMsg);
     });
-    sock.on('circle',(coord) => {
-        var colorId = Math.ceil(Math.random()*7);
-        var color = colorLib[colorId];
-        circleHistory.push({coord:coord,color:color});
-        io.emit('circle',coord,color);
-    });
-});
 
-io.on('disconnection',(sock) => {
-    numOfClientsConnected--;
-    console.log('one client disconnected,totla clients is '+numOfClientsConnected);
-
+    sock.on('disconnect',() => {
+    	
+        numOfClientsConnected--;
+   	 	console.log('one client disconnected,total clients is '+numOfClientsConnected);
+    	clients=clients.filter(function(element) {
+    		return element !== sock.name;
+    	});
+    	console.log(numOfClientsConnected);
+    	console.log(clients.length);
+    	io.emit('disconnected',{num:numOfClientsConnected,nameList:clients,name:sock.name});
+    	console.log('emit');
+	});  
 });
 
 
 
 app.use(express.static(__dirname+'/public'));
+/*
+
 
 app.get('/hello',(req,res) => {
     res.send('WOW how dare you');
 });
+*/
 
 server.listen(8080,() => {
     console.log('listen to 8080');
